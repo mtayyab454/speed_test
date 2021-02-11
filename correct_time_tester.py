@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from basisModel import basisModel, display_stats
 import torchvision.models as models
+import time
 
 def get_basis_model(model, mul_factor):
     basis_model = basisModel(model, use_weights=True, add_bn=False, trainable_basis=True)
@@ -50,6 +51,7 @@ basis_model = get_basis_model(model, mul_factor)
 
 model_mu_time, model_times = measure_time(model, repetitions)
 print(model_mu_time)
+time.sleep(10)
 
 bmodel_mu_time, bmodel_times = measure_time(basis_model, repetitions)
 print(bmodel_mu_time)
