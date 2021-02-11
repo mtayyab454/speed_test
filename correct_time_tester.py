@@ -6,9 +6,12 @@ import time
 
 def get_basis_model(model, mul_factor):
     basis_model = basisModel(model, use_weights=True, add_bn=False, trainable_basis=True)
-    f_list = [27]
-    f_list.extend((basis_model.num_original_filters.cpu().numpy() * mul_factor).tolist()[1:])
-    f_list = torch.IntTensor(f_list).tolist()
+    if not isinstance(mul_factor, list):
+        f_list = [27]
+        f_list.extend((basis_model.num_original_filters.cpu().numpy() * mul_factor).tolist()[1:])
+        f_list = torch.IntTensor(f_list).tolist()
+    else:
+        f_list = mul_factor
     basis_model.update_channels(f_list)
 
     return basis_model
@@ -42,18 +45,45 @@ def measure_time(model, repetitions):
     return mean_syn, timings
     # print(mean_syn)
 
-mul_factor = 0.441
-repetitions = 100
+flop_reduction = {'2x':0.441, '3x':[9, 13, 32, 64, 64, 64, 90, 128, 128, 154, 154, 154, 154], '4x':[8, 10, 20, 45, 52, 52, 64, 103, 103, 103, 103, 103, 103],
+                  '5x':[8, 10, 20, 39, 39, 39, 52, 77, 77, 77, 77, 77, 77]}
+repetitions = 1000
 
 ################################
 model = models.vgg16(pretrained=False)
-basis_model = get_basis_model(model, mul_factor)
 
+############ Original Model ############
+print('Original Model')
 model_mu_time, model_times = measure_time(model, repetitions)
 print(model_mu_time)
-time.sleep(10)
 
+############ 2x Model ############
+time.sleep(10)
+print('2x Model')
+basis_model = get_basis_model(model, flop_reduction['2x'])
+# info = display_stats(basis_model, model, '2x', [224, 224])
 bmodel_mu_time, bmodel_times = measure_time(basis_model, repetitions)
 print(bmodel_mu_time)
 
-info = display_stats(basis_model, model, 'test', [224, 224])
+############ 3x Model ############
+print('3x Model')
+basis_model = get_basis_model(model, flop_reduction['3x'])
+# info = display_stats(basis_model, model, '3x', [224, 224])
+bmodel_mu_time, bmodel_times = measure_time(basis_model, repetitions)
+print(bmodel_mu_time)
+
+############ 4x Model ############
+time.sleep(10)
+print('4x Model')
+basis_model = get_basis_model(model, flop_reduction['4x'])
+# info = display_stats(basis_model, model, '4x', [224, 224])
+bmodel_mu_time, bmodel_times = measure_time(basis_model, repetitions)
+print(bmodel_mu_time)
+
+############ 5x Model ############
+time.sleep(10)
+print('5x Model')
+basis_model = get_basis_model(model, flop_reduction['5x'])
+# info = display_stats(basis_model, model, '5x', [224, 224])
+bmodel_mu_time, bmodel_times = measure_time(basis_model, repetitions)
+print(bmodel_mu_time)
