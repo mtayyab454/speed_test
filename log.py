@@ -26,7 +26,7 @@ def parse(log_data):
 
 	return(values)
 
-log_files = ['tegra_log_normal.txt']
+log_files = ['log.txt']
 log_data = [open(i,'r').readlines() for i in log_files]
 
 values = parse(log_data[0])
